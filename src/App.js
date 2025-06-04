@@ -1,6 +1,6 @@
 import './App.css';
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Grid, Typography, Paper } from "@mui/material";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
@@ -8,14 +8,19 @@ import TopBar from "./components/TopBar";
 import UserDetail from "./components/UserDetail";
 import UserList from "./components/UserList";
 import UserPhotos from "./components/UserPhotos";
-import UserComments from "./components/UserComments";
+import UserComment from './components/UserComment';
+
+import { useState } from 'react';
+
 const App = (props) => {
+  const [advancedFeature, setAdvancedFeature] = useState(false);
+
   return (
       <Router>
         <div>
           <Grid container spacing={2}>
             <Grid item xs={12}>
-              <TopBar />
+              <TopBar advancedFeature={advancedFeature} setAdvancedFeature={setAdvancedFeature} />
             </Grid>
             <div className="main-topbar-buffer" />
             <Grid item sm={3}>
@@ -32,13 +37,19 @@ const App = (props) => {
                   />
                   <Route
                       path="/photos/:userId"
-                      element = {<UserPhotos />}
+                      element = {<UserPhotos advancedFeature={advancedFeature} />}
                   />
-                  <Route path="/users" element={<UserList />} />
                   <Route
-                      path="/comments/:userId"
-                      element = {<UserComments />}
+                      path="/photos/:userId/:photoId"
+                      element = {<UserPhotos advancedFeature={advancedFeature} setAdvancedFeature={setAdvancedFeature}/>}
                   />
+
+                  <Route
+                    path="comments/:userId"
+                    element = {<UserComment />}
+                  />
+
+                  <Route path="/users" element={<UserList />} />
                 </Routes>
               </Paper>
             </Grid>

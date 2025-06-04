@@ -5,106 +5,126 @@ import {
   ListItem,
   ListItemText,
   Typography,
-  Avatar,
-  Box,
-  Chip,
+  Avatar, Box, Chip, Badge,
+  IconButton
 } from "@mui/material";
-import { Link, useNavigate } from "react-router-dom";
+
+import CommentOutlinedIcon from '@mui/icons-material/CommentOutlined';
+import PhotoOutlinedIcon from '@mui/icons-material/PhotoOutlined';
 import "./styles.css";
-import { useState, useEffect } from "react";
+
 import fetchModel from "../../lib/fetchModelData";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 /**
  * Define UserList, a React component of Project 4.
  */
-
 function UserList () {
-  const [users, setUsers] = useState([]);
-  const [userStats, setUserStats] = useState({});
-  const navigate = useNavigate();
+    const [users, setUsers] = useState([]);
+    const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchModel("/user/list")
-      .then((data) => {
-        setUsers(data);
-        const stats = {};
-        data.forEach((user) => {
-          stats[user._id] = {
-            photoCount: 0,
-            commentCount: 0,
+    const [userStats, setUserStats] = useState({
+      numComments: 0,
+      numPhotos: 0
+    });
+
+    useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const data = await fetchModel(`/user/list`);
+        if (data) {
+          setUsers(data);
+
+          for (const user of data) {
+            const stats = {
+              numPhotos: 0,
+              numComments: 0
+            };
+
+            try {
+              const comments = await fetchModel(`/comment/${user._id}`);
+              if (comments) {
+                stats.numComments = comments.length;
+              }
+            } catch (err) {
+              console.error(`Error fetching comments for user ${user._id}:`, err);
+            }
+
+            try {
+              const photos = await fetchModel(`/photo/photosOfUser/${user._id}`);
+              if (photos) {
+                stats.numPhotos = photos.length;
+              }
+            } catch (err) {
+              console.error(`Error fetching photos for user ${user._id}:`, err);
+            }
+
+            setUserStats((prevStats) => ({
+              ...prevStats,
+              [user._id]: stats
+            }));
           }
-          fetchModel(`/comment/${user._id}`)
-            .then((comments) => {
-              stats[user._id].commentCount = comments.length;
-            })
-            
-            .then(() => {
-              return fetchModel(`/photo/photosOfUser/${user._id}`);
-            })
-            .then((photos) => {
-              stats[user._id].photoCount = photos.length;
-            })
-
-            .then(() => {
-              setUserStats((prevStats) => ({
-                ...prevStats,
-                [user._id]: stats[user._id],
-              }));
-            })
-        })
-      }).catch((error) => {
-        console.error("Error fetching user data:", error);
+        }
+      } catch (err) {
+        console.error("Error fetching user list: ", err);
       }
-    );
+    };
+
+    fetchData();
   }, []);
 
 
-  return (
-    <div className="user-list">
-      <Typography variant="h5" sx={{ mb: 2, mt: 2 }}>
-        User List
-      </Typography>
-      <List component="nav">
-        {users.map((item) => (
-          <React.Fragment key={item._id}>
-            <ListItem sx={{ display: "flex", alignItems: "center" }}>
-              <Avatar sx={{ bgcolor: "primary.main", mr: 2 }}>
-                {item.first_name[0] + item.last_name[0]}
-              </Avatar>
-              <ListItemText>
-                <Link
-                  to={`/users/${item._id}`}
-                  style={{ textDecoration: "none", color: "inherit" }}
-                >
-                  {item.first_name} {item.last_name}
-                </Link>
-              </ListItemText>
-              <Box sx={{ display: 'flex', gap: 1 }}>
-                <Chip 
-                  label={userStats[item._id]?.photoCount || 0}
-                  color="success"
-                  size="small"
-                  component={Link}
-                  to={`/photos/${item._id}`}
-                  clickable
-                />
-                <Chip 
-                  label={userStats[item._id]?.commentCount || 0}
-                  color="error"
-                  size="small"
-                  component={Link}
-                  to={`/comments/${item._id}`}
-                  clickable
-                />
-              </Box>
-            </ListItem>
-            <Divider />
-          </React.Fragment>
-        ))}
-      </List>
-    </div>
-  );
-}
+    return (
+      <div className="user-list">
+        <Typography variant="h5" sx={{mb: 2, mt: 2}}>
+          Users List
+        </Typography>
+        <List component="nav">
+          {users.map((item) => (
+            <React.Fragment key={item._id}>
+              <ListItem sx={{display: "flex", alignItems: "center"}}>
+                <Avatar sx={{bgcolor: "primary.main", mr: 2}}>
+                  {item.first_name[0] + item.last_name[0]}
+                </Avatar>
+                <ListItemText>
+                  <Link to={`/users/${item._id}`} style={{textDecoration: "none", color: "inherit"}}>
+                    {item.first_name} {item.last_name}
+                  </Link>
+                </ListItemText>
+                <Box sx={{display: "flex", gap: 1}}>
+                  {console.log(userStats[item._id])}
+                  <Badge badgeContent={userStats[item._id]?.numPhotos || 0} color="success">
+                    <IconButton
+                      color="default"
+                      size="small"
+                      component={Link}
+                      to={`/photos/${item._id}`}
+                      clickable="true"  showZero
+                    >
+                      <PhotoOutlinedIcon />
+                    </IconButton>
+                  </Badge>
 
+                  <Badge badgeContent={userStats[item._id]?.numComments || 0} color="error">
+                    <IconButton
+                      color="default"
+                      size="small"
+                      component={Link}
+                      to={`/comments/${item._id}`}
+                      clickable="true" showZero
+                    >
+                      <CommentOutlinedIcon />
+                    </IconButton>
+                  </Badge>
+                </Box>
+              </ListItem>
+              <Divider/>
+            </React.Fragment>
+          ))}
+        </List>
+      </div>
+    );
+}
 
 export default UserList;
