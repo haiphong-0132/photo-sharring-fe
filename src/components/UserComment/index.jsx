@@ -108,7 +108,7 @@ function UserComment(){
 											onClick={() => handleClickPhoto(comment.owner_id, comment.photo_id)}
 										/>
 										<CardContent sx={{flex: '1 1 auto', minWidth: 0, overflow:"hidden"}}>
-											<Typography variant="body2" color="text.secondary" glutterBottom>
+											<Typography variant="body2" color="text.secondary" gutterBottom>
 												Posted on {formatDate(comment.date_time)}
 											</Typography>
 											<Typography variant="body1" sx={{mb:1, wordWrap: 'break-word', wordBreak: 'break-word', overflowWrap: 'break-word', hyphens: 'auto'}}>

@@ -93,14 +93,13 @@ function UserList () {
                   </Link>
                 </ListItemText>
                 <Box sx={{display: "flex", gap: 1}}>
-                  {console.log(userStats[item._id])}
                   <Badge badgeContent={userStats[item._id]?.numPhotos || 0} color="success">
                     <IconButton
                       color="default"
                       size="small"
                       component={Link}
                       to={`/photos/${item._id}`}
-                      clickable="true"  showZero
+                      clickable="true"
                     >
                       <PhotoOutlinedIcon />
                     </IconButton>
@@ -112,7 +111,7 @@ function UserList () {
                       size="small"
                       component={Link}
                       to={`/comments/${item._id}`}
-                      clickable="true" showZero
+                      clickable="true"
                     >
                       <CommentOutlinedIcon />
                     </IconButton>

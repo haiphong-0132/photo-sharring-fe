@@ -2,54 +2,73 @@ import './App.css';
 
 import React, { useEffect } from "react";
 import { Grid, Typography, Paper } from "@mui/material";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 
 import TopBar from "./components/TopBar";
 import UserDetail from "./components/UserDetail";
 import UserList from "./components/UserList";
 import UserPhotos from "./components/UserPhotos";
 import UserComment from './components/UserComment';
+import LoginRegister from './components/LoginRegister';
+import ProtectedRoute from './components/ProtectedRoute';
 
 import { useState } from 'react';
 
 const App = (props) => {
+  const [userLoggedIn, setUserLoggedIn] = useState(null);
   const [advancedFeature, setAdvancedFeature] = useState(false);
+  
+  const isLoggedIn = () => {
+    const token = sessionStorage.getItem("token");
+    return !!token;
+  };
 
   return (
       <Router>
         <div>
           <Grid container spacing={2}>
             <Grid item xs={12}>
-              <TopBar advancedFeature={advancedFeature} setAdvancedFeature={setAdvancedFeature} />
+              <TopBar 
+                advancedFeature={advancedFeature} 
+                setAdvancedFeature={setAdvancedFeature} 
+                userLoggedIn={userLoggedIn} 
+                setUserLoggedIn={setUserLoggedIn} />
             </Grid>
             <div className="main-topbar-buffer" />
             <Grid item sm={3}>
               <Paper className="main-grid-item">
-                <UserList />
+                <ProtectedRoute  userLoggedIn={userLoggedIn}>
+                  <UserList />
+                </ProtectedRoute>
               </Paper>
             </Grid>
             <Grid item sm={9}>
               <Paper className="main-grid-item">
                 <Routes>
                   <Route
+                    path="/login"
+                    element={<LoginRegister setUserLoggedIn={setUserLoggedIn} />}
+                  />
+                  <Route
                       path="/users/:userId"
-                      element = {<UserDetail />}
+                      element = {<ProtectedRoute userLoggedIn={userLoggedIn}><UserDetail /></ProtectedRoute>}
                   />
                   <Route
                       path="/photos/:userId"
-                      element = {<UserPhotos advancedFeature={advancedFeature} />}
+                      element = {<ProtectedRoute userLoggedIn={userLoggedIn}><UserPhotos advancedFeature={advancedFeature} /></ProtectedRoute>}
                   />
                   <Route
                       path="/photos/:userId/:photoId"
-                      element = {<UserPhotos advancedFeature={advancedFeature} setAdvancedFeature={setAdvancedFeature}/>}
+                      element = {<ProtectedRoute userLoggedIn={userLoggedIn}><UserPhotos advancedFeature={advancedFeature} setAdvancedFeature={setAdvancedFeature}/></ProtectedRoute>}
                   />
 
                   <Route
                     path="comments/:userId"
-                    element = {<UserComment />}
+                    element = {<ProtectedRoute userLoggedIn={userLoggedIn}><UserComment /></ProtectedRoute>}
                   />
 
-                  <Route path="/users" element={<UserList />} />
+                  <Route path="/users" element={<ProtectedRoute userLoggedIn={userLoggedIn}><UserList /></ProtectedRoute>} />
+                  <Route path="/" element={userLoggedIn ? <Navigate to="/users"/> : <Navigate to ="/login"/> }  />
                 </Routes>
               </Paper>
             </Grid>

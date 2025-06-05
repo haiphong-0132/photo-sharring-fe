@@ -22,7 +22,9 @@ function UserPhotos ({advancedFeature, setAdvancedFeature}) {
     const navigate = useNavigate();
     const location = useLocation();
     
+
     useEffect(() => {
+
       const fetchData = async () => {
         try{
           const userData = await fetchModel(`/user/${userId}`);
@@ -44,17 +46,20 @@ function UserPhotos ({advancedFeature, setAdvancedFeature}) {
                 setCurrentPhotoIndex(index);
               }
             }
+
+
           }
           else if (advancedFeature && photoData.length > 0){
             navigate(`/photos/${userId}/${photoData[0]._id}`, {replace: true})
           }
+
         } catch(err){
-          console.error("Error fetching photo: ", err);
+          console.error("Error fetching photos: ", err);
         }
       }
 
       fetchData();
-    }, [userId, photoId, advancedFeature, navigate]);
+    }, [userId, photoId, setAdvancedFeature, advancedFeature, navigate]);
 
     if (!user){
       return (
