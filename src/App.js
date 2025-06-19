@@ -15,13 +15,11 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { useState } from 'react';
 
 const App = (props) => {
-  const [userLoggedIn, setUserLoggedIn] = useState(null);
+
+  const current_user = sessionStorage.getItem("user");
+
+  const [userLoggedIn, setUserLoggedIn] = useState(current_user);
   const [advancedFeature, setAdvancedFeature] = useState(false);
-  
-  const isLoggedIn = () => {
-    const token = sessionStorage.getItem("token");
-    return !!token;
-  };
 
   return (
       <Router>

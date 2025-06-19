@@ -15,7 +15,6 @@ import {
 } from "@mui/material";
 
 import { useForm } from "react-hook-form";
-import { responsiveProperty } from "@mui/material/styles/cssUtils";
 
 const BE_URL = process.env.REACT_APP_BE_URL;
 
@@ -63,6 +62,7 @@ export default function LoginRegister({ setUserLoggedIn }) {
       }
 
       sessionStorage.setItem("token", result.token);
+      sessionStorage.setItem("user", result.user);
 
       setUserLoggedIn(result.user);
 
@@ -78,11 +78,11 @@ export default function LoginRegister({ setUserLoggedIn }) {
   const onSignupSubmit = async (data) => {
     setError("");
     try {
-      if (data.password !== data.confirm_password) {
+      if (data.password !== data.confirmPassword) {
         throw new Error("Passwords do not match");
       }
 
-      const response = await fetch(`${BE_URL}/admin/user`, {
+      const response = await fetch(`${BE_URL}/user`, {
         method: "POST",
         headers: {
           Accept: "application/json",
@@ -102,11 +102,13 @@ export default function LoginRegister({ setUserLoggedIn }) {
       const result = await response.json();
 
       if (!response.ok) {
+        setError(response.message);
         throw new Error(result.message || "Registration failed");
       }
 
-      setSnackbarMessage("Registration successful. Please log in");
+      setSnackbarMessage("Registration successful");
       setSnackbarOpen(true);
+      setTabValue(0);
     } catch (err) {
       setError(err.message || "Register failed");
     }
@@ -228,7 +230,7 @@ export default function LoginRegister({ setUserLoggedIn }) {
                 id="confirm_password"
                 label="Confirm password"
                 type="password"
-                {...registerSignup("confirm_password", {
+                {...registerSignup("confirmPassword", {
                   required: "Please confirm your password",
                   validate: (value, formValues) => {
                     return (
