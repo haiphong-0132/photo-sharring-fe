@@ -2,6 +2,10 @@
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+# My Project
+
+Frontend deployed on CodeSandbox: [View Demo](https://codesandbox.io/p/devbox/eager-chatterjee-s2w46x)
+
 ## Available Scripts
 
 In the project directory, you can run:
